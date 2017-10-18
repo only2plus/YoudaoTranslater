@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os, time, re
+import os
+import time
+import re
 from threading import Thread
 from multiprocessing import Queue
 
@@ -14,7 +16,8 @@ try:
 except ImportError:
     print('[!] Import error, start install')
     os.system('pip3 install python3-xlib pyautogui pyocr')
-    os.system('apt-get install scrot python-tk python3-dev python-imaging tesseract-ocr')
+    os.system(
+        'apt-get install scrot python-tk python3-dev python-imaging tesseract-ocr')
 
 tools = pyocr.get_available_tools()[:]
 print('[*] ocr using: {}'.format(tools[0].get_name()))
@@ -47,11 +50,12 @@ class CaptureMousePic(Thread):
             return
         tmp = tmp.resize((800, 120), Image.ANTIALIAS)  # for orc work well
         string = tools[0].image_to_string(tmp, lang='eng')
-        str_list = list(filter(lambda s: s and s.strip(), re.split('[^a-zA-Z]\s*', string)))
+        str_list = list(filter(lambda s: s and s.strip(),
+                               re.split('[^a-zA-Z]\s*', string)))
         if len(str_list) == 0:
             return
         string = str_list[-1]
         if len(string) <= 3:
             return
-        #print(string)
+        # print(string)
         str_queue.put(string)

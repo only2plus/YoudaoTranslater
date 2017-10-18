@@ -27,12 +27,13 @@ class GUI(Thread):
         default_font.configure(size=17, family='sans-serif')
         root.option_add('*font', default_font)
 
-        button = ttk.Button(root, text='Send', width=4, command=lambda: send_word())
+        button = ttk.Button(root, text='Send', width=4,
+                            command=lambda: send_word())
         button.grid(row=0, column=1, sticky='W', padx=5, pady=5)
 
         # is_capture.get enable -> 1, disable -> 0
         is_capture = tk.IntVar()
-        check = tk.Checkbutton(root, text="⊙", variable=is_capture)
+        check = tk.Checkbutton(root, text="⊙", variable=is_capture, command=lambda: mouse_wait_capture())
         check.grid(row=0, column=2, sticky='W', padx=5, pady=5)
 
         input_entry = ttk.Entry(root, width=12, textvariable=tk.StringVar())
@@ -45,7 +46,6 @@ class GUI(Thread):
         result_label.grid(row=1, columnspan=3)
 
         c = CaptureMousePic()
-
         def capture():
             while True:
                 if c.isAlive():
@@ -55,20 +55,21 @@ class GUI(Thread):
         def mouse_wait_capture(*args):
             Thread(target=capture).start()
             if is_capture.get() == 1:
-                #print('start capture')
                 c.start()
             else:
-                #print('stop capture')
                 c.stop()
 
         def send_word(*args):
+            button['state'] = 'disabled'
             word = input_entry.get()
             if len(word) > 0:
                 result = Youdao().request(word)
                 text.set(result)
+            button['state'] = 'normal'
 
         def move_window(event):
-            width, height, x, y = [int(i) for i in re.findall(r'\d+', root.geometry())]
+            width, height, x, y = [
+                int(i) for i in re.findall(r'\d+', root.geometry())]
             if event.keysym == 'Up':
                 y = int(y - height)
             elif event.keysym == 'Down':
@@ -82,7 +83,6 @@ class GUI(Thread):
         def kill_self(*args):
             ProcessKiller(0).start()
 
-        root.bind(sequence='<Button-1>', func=mouse_wait_capture)
         root.bind(sequence='<Control-s>', func=send_word)
         root.bind(sequence='<Control-q>', func=kill_self)
         root.bind(sequence='<Return>', func=send_word)

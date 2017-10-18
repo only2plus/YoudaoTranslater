@@ -34,5 +34,6 @@ class Youdao:
         elif 'basic' not in json or 'query' not in json:
             text = '{}\n{}'.format(json['query'], 'no translation')
         else:
-            text = '{}\n{}'.format(json['query'], '\n'.join(json['basic']['explains']))
+            text = '{}\n{}'.format(
+                json['query'], '\n'.join(json['basic']['explains']))
         return text
