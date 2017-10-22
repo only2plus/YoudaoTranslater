@@ -15,6 +15,7 @@ class GUI(Thread):
     def __init__(self, text):
         super().__init__()
         self.result_text = text
+        self.c = None
 
     def run(self):
         self.init()
@@ -45,19 +46,22 @@ class GUI(Thread):
         result_label = tk.Label(root, textvariable=text)
         result_label.grid(row=1, columnspan=3)
 
-        c = CaptureMousePic()
+        c = [CaptureMousePic()]
+        def mouse_wait_capture(*args):
+            if is_capture.get() == 1:
+                c[0].start()
+                Thread(target=capture).start()
+            else:
+                c[0].stop()
+                c[0] = CaptureMousePic()
+
         def capture():
             while True:
-                if c.isAlive():
+                if c[0].isAlive():
                     result = Youdao().request(str_queue.get())
                     text.set(result)
-
-        def mouse_wait_capture(*args):
-            Thread(target=capture).start()
-            if is_capture.get() == 1:
-                c.start()
-            else:
-                c.stop()
+                else:
+                    break
 
         def send_word(*args):
             button['state'] = 'disabled'
@@ -80,11 +84,11 @@ class GUI(Thread):
                 x = int(x + width / 2)
             root.geometry('+%d+%d' % (x, y))
 
-        def kill_self(*args):
-            ProcessKiller(0).start()
+        def _quit(*args):
+            root.quit()
 
         root.bind(sequence='<Control-s>', func=send_word)
-        root.bind(sequence='<Control-q>', func=kill_self)
+        root.bind(sequence='<Control-q>', func=_quit)
         root.bind(sequence='<Return>', func=send_word)
         root.bind(sequence='<Down>', func=move_window)
         root.bind(sequence='<Up>', func=move_window)

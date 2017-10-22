@@ -31,9 +31,8 @@ class Youdao:
         if json['errorCode'] != '0':
             # http://ai.youdao.com/docs/doc-trans-api.s#p06
             text = 'error {}'.format(json['errorCode'])
-        elif 'basic' not in json or 'query' not in json:
-            text = '{}\n{}'.format(json['query'], 'no translation')
+        elif 'query' in json and 'basic' in json:
+            text = '{}\n{}'.format(json['query'], '\n'.join(json['basic']['explains']))
         else:
-            text = '{}\n{}'.format(
-                json['query'], '\n'.join(json['basic']['explains']))
+            text = '{}\n{}'.format(json['query'], 'no translation')
         return text
